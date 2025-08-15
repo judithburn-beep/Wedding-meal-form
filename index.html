@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding Meal Selection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+            font-style: italic;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-section label {
+            display: block;
+            margin-bottom: 10px;
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .form-section select, 
+        .form-section input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e8f4f8;
+            border-radius: 10px;
+            font-size: 16px;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .form-section select:focus,
+        .form-section input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Searchable dropdown styles */
+        .searchable-dropdown {
+            position: relative;
+        }
+
+        .dropdown-search {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e8f4f8;
+            border-radius: 10px;
+            font-size: 16px;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-search:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .dropdown-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e8f4f8;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .dropdown-option {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-option:hover {
+            background-color: #f0f2ff;
+        }
+
+        .dropdown-option:last-child {
+            border-bottom: none;
+        }
+
+        .party-members {
+            background: #f8f9ff;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .party-members h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .member-selection {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e8f4f8;
+        }
+
+        .member-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1.05em;
+        }
+
+        .meal-options {
+            display: grid;
+            gap: 8px;
+        }
+
+        .meal-option {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+
+        .meal-option:hover {
+            background-color: #f0f2ff;
+        }
+
+        .meal-option input[type="radio"] {
+            margin-right: 10px;
+            width: auto;
+        }
+
+        .meal-option label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: normal;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .guest-count {
+            font-size: 0.9em;
+            color: #666;
+            margin-left: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+                padding: 25px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌸 Wedding Meal Selection 🌸</h1>
+            <p>Please select your party and choose meals for each guest</p>
+        </div>
+
+        <!-- Main Form -->
+        <form id="mealForm">
+            <div class="form-section">
+                <label for="partySearch">Find Your Party (search by party name or your name):</label>
+                <div class="searchable-dropdown">
+                    <input type="text" id="partySearch" class="dropdown-search" 
+                           placeholder="Start typing your name or party name..." autocomplete="off" required>
+                    <div id="partyOptions" class="dropdown-options"></div>
+                </div>
+                <input type="hidden" id="selectedParty" required>
+            </div>
+
+            <div id="partyMembers" class="party-members hidden">
+                <h3>Select meals for your party:</h3>
+                <div id="membersList"></div>
+            </div>
+
+            <div class="form-section hidden" id="specialRequestsSection">
+                <label for="specialRequests">Additional Notes for the Catering Team:</label>
+                <input type="text" id="specialRequests" placeholder="Any additional requests or notes..." />
+            </div>
+
+            <button type="submit" class="submit-btn">Submit Meal Selections</button>
+        </form>
+
+        <div id="successMessage" class="success-message hidden">
+            <h3>✅ Thank you!</h3>
+            <p>Your meal selections have been recorded. We can't wait to celebrate with you!</p>
+        </div>
+
+        <!-- Admin Section (Hidden by default) -->
+        <div id="adminSection" class="hidden" style="margin-top: 40px; padding: 20px; background: #f0f8ff; border-radius: 10px;">
+            <h3>📊 Admin: View All Responses</h3>
+            <p><em>Only you (the couple) should see this section</em></p>
+            <button id="showResponsesBtn" class="submit-btn" style="width: auto; display: inline-block; margin: 10px 0;">
+                View All Meal Selections
+            </button>
+            <button id="downloadAllBtn" class="submit-btn" style="width: auto; display: inline-block; margin: 10px;">
+                Download All as CSV
+            </button>
+            <div id="responsesList" class="hidden" style="margin-top: 20px; max-height: 400px; overflow-y: auto; background: white; padding: 15px; border-radius: 5px;"></div>
+        </div>
+    </div>
+
+    <script>
+        let partyData = {};
+        let allResponses = [];
+
+        // Your actual wedding guest data from the CSV
+        const weddingGuests = [
+            {firstName: "Ella", lastName: "Berkowitz", party: "Ella & Yitzhak Berkowitz"},
+            {firstName: "Yitzhak", lastName: "Berkowitz", party: "Ella & Yitzhak Berkowitz"},
+            {firstName: "La", lastName: "Nette Scharr", party: "La Nette Scharr & Larry Zuckerman"},
+            {firstName: "Larry", lastName: "Zuckerman", party: "La Nette Scharr & Larry Zuckerman"},
+            {firstName: "Cydnie", lastName: "Oleinick", party: "Cydnie Oleinick"},
+            {firstName: "Alisha", lastName: "Braswell", party: "Alisha Braswell & Hayden Compton"},
+            {firstName: "Hayden", lastName: "Compton", party: "Alisha Braswell & Hayden Compton"},
+            {firstName: "Anna", lastName: "Adler", party: "Anna & Ben Adler"},
+            {firstName: "Ben", lastName: "Adler", party: "Anna & Ben Adler"},
+            {firstName: "Max", lastName: "Goldberg", party: "Max Goldberg"},
+            {firstName: "David", lastName: "Sidore", party: "David Sidore & Nicole Lazar"},
+            {firstName: "Nicole", lastName: "Lazar", party: "David Sidore & Nicole Lazar"},
+            {firstName: "Jacob", lastName: "Schmidt", party: "Jacob Schmidt & Greta Gustafson"},
+            {firstName: "Greta", lastName: "Gustafson", party: "Jacob Schmidt & Greta Gustafson"},
+            {firstName: "Susie", lastName: "Pitler", party: "Susie & Jeffrey Pitler"},
+            {firstName: "Jeffrey", lastName: "Pitler", party: "Susie & Jeffrey Pitler"},
+            {firstName: "Hailey", lastName: "Basiouny", party: "Hailey Basiouny"},
+            {firstName: "Goel", lastName: "Damkani", party: "Goel Damkani"},
+            {firstName: "Maddie", lastName: "Fetzner", party: "Maddie & Billy Fetzner"},
+            {firstName: "Billy", lastName: "Fetzner", party: "Maddie & Billy Fetzner"},
+            {firstName: "Bob", lastName: "Dropkin", party: "Bob Dropkin"},
+            {firstName: "Judith", lastName: "Bernholc", party: "Judith & Ben"},
+            {firstName: "Ben", lastName: "Pitler", party: "Judith & Ben"},
+            {firstName: "Isabel", lastName: "Alexander", party: "Isabel Alexander"},
+            {firstName: "Sam", lastName: "Bernard", party: "Sam Bernard "},
+            {firstName: "Danielle", lastName: "Bolner", party: "Bolner Family"},
+            {firstName: "Blaine", lastName: "Bolner", party: "Bolner Family"},
+            {firstName: "David", lastName: "Bolner", party: "Bolner Family"},
+            {firstName: "Mason", lastName: "Bolner", party: "Bolner Family"},
+            {firstName: "Stacy", lastName: "Cronin", party: "Stacy & Sean Cronin"},
+            {firstName: "Sean", lastName: "Cronin", party: "Stacy & Sean Cronin"},
+            {firstName: "Caley", lastName: "Scheppegrell", party: "Caley Scheppegrell & Ryan Howard"},
+            {firstName: "Ryan", lastName: "Howard", party: "Caley Scheppegrell & Ryan Howard"},
+            {firstName: "Jake", lastName: "Zammitti", party: "Jake & Jamie Zammitti"},
+            {firstName: "Jamie", lastName: "Zammitti", party: "Jake & Jamie Zammitti"},
+            {firstName: "Nan", lastName: "Hathaway Reinish", party: "Nan Hathaway Reinish & Izzy Reinish"},
+            {firstName: "Izzy", lastName: "Reinish", party: "Nan Hathaway Reinish & Izzy Reinish"},
+            {firstName: "Sharon", lastName: "Price", party: "Sharon & Julian Price"},
+            {firstName: "Julian", lastName: "Price", party: "Sharon & Julian Price"},
+            {firstName: "Jim", lastName: "Epstien", party: "Jim Epstien"},
+            {firstName: "Missy", lastName: "Alexander", party: "Missy & Michael Alexander"},
+            {firstName: "Michael", lastName: "Alexander", party: "Missy & Michael Alexander"},
+            {firstName: "Michael", lastName: "Singer", party: "Michael & Shoshana Singer"},
+            {firstName: "Shoshana", lastName: "Singer", party: "Michael & Shoshana Singer"},
+            {firstName: "Alex", lastName: "Klajman", party: "Alex Klajman & Alex's Guest"},
+            {firstName: "Alex's", lastName: "Guest", party: "Alex Klajman & Alex's Guest"},
+            {firstName: "Laurie", lastName: "Medina", party: "Laurie & Ivan Medina"},
+            {firstName: "Ivan", lastName: "Medina", party: "Laurie & Ivan Medina"},
+            {firstName: "Joe", lastName: "Marceda", party: "Joe Marceda & Sarah Wheaton"},
+            {firstName: "Sarah", lastName: "Wheaton", party: "Joe Marceda & Sarah Wheaton"},
+            {firstName: "Phil", lastName: "Seligman", party: "Phil & Lisa Seligman"},
+            {firstName: "Lisa", lastName: "Seligman", party: "Phil & Lisa Seligman"},
+            {firstName: "Evan", lastName: "Linett", party: "Evan Linett"},
+            {firstName: "Ellen", lastName: "Teitelbaum", party: "Ellen & David Teitelbaum"},
+            {firstName: "David", lastName: "Teitelbaum", party: "Ellen & David Teitelbaum"},
+            {firstName: "Stuart", lastName: "Bernholc", party: "Stuart Bernholc & Elena Laytner"},
+            {firstName: "Elena", lastName: "Laytner", party: "Stuart Bernholc & Elena Laytner"},
+            {firstName: "Shelley", lastName: "Yetman Garrett", party: "Shelley Yetman Garrett"},
+            {firstName: "Tyler", lastName: "Schneider", party: "Tyler Schneider"},
+            {firstName: "Beth", lastName: "Shelly", party: "Beth Shelly & Jim O'Donnell"},
+            {firstName: "Jim", lastName: "O'Donnell", party: "Beth Shelly & Jim O'Donnell"},
+            {firstName: "Jerry", lastName: "Bernholc", party: "Jerry & Alissa Bernholc"},
+            {firstName: "Alissa", lastName: "Bernholc", party: "Jerry & Alissa Bernholc"},
+            {firstName: "Melissa", lastName: "Goldberg", party: "Melissa Goldberg & Randy Chan"},
+            {firstName: "Randy", lastName: "Chan", party: "Melissa Goldberg & Randy Chan"},
+            {firstName: "Lindsey", lastName: "Dasher", party: "Lindsey Dasher & Andrew Oleinick"},
+            {firstName: "Andrew", lastName: "Oleinick", party: "Lindsey Dasher & Andrew Oleinick"},
+            {firstName: "Caroline", lastName: "Orr", party: "Caroline Orr & Jerry Limber"},
+            {firstName: "Jerry", lastName: "Limber", party: "Caroline Orr & Jerry Limber"},
+            {firstName: "Andrew", lastName: "Burke", party: "Andrew Burke"},
+            {firstName: "Susan", lastName: "Leboff", party: "Susan Leboff & Bruce Weiner"},
+            {firstName: "Bruce", lastName: "Weiner", party: "Susan Leboff & Bruce Weiner"},
+            {firstName: "Michael", lastName: "Collopy", party: "Michael Collopy & Sophie Elliott"},
+            {firstName: "Sophie", lastName: "Elliott", party: "Michael Collopy & Sophie Elliott"},
+            {firstName: "Michelle", lastName: "Hensley", party: "Michelle Hensley"},
+            {firstName: "Liron", lastName: "Berkowitz", party: "Berkowitz Family"},
+            {firstName: "Danielle", lastName: "Berkowitz", party: "Berkowitz Family"},
+            {firstName: "Mika", lastName: "Berkowitz", party: "Berkowitz Family"},
+            {firstName: "Guy", lastName: "Berkowitz", party: "Berkowitz Family"},
+            {firstName: "Jamie", lastName: "Ayelet Laytner", party: "Jamie Ayelet Laytner & Benjamin Baldwin"},
+            {firstName: "Vincent", lastName: "DiProssimo", party: "Vincent & Judy DiProssimo"},
+            {firstName: "Judy", lastName: "DiProssimo", party: "Vincent & Judy DiProssimo"},
+            {firstName: "Susan", lastName: "Shaw", party: "Susan Shaw & Andy Mihok"},
+            {firstName: "Andy", lastName: "Mihok", party: "Susan Shaw & Andy Mihok"},
+            {firstName: "Jamie", lastName: "Jackson", party: "Jamie & Nola Jackson"},
+            {firstName: "Nola", lastName: "Jackson", party: "Jamie & Nola Jackson"},
+            {firstName: "Tony", lastName: "Servedio", party: "Tony & Fay Servedio"},
+            {firstName: "Fay", lastName: "Servedio", party: "Tony & Fay Servedio"},
+            {firstName: "Briana", lastName: "Geoghegan", party: "Briana Geoghegan & Michael Presch"},
+            {firstName: "Michael", lastName: "Presch", party: "Briana Geoghegan & Michael Presch"},
+            {firstName: "Erica", lastName: "Linett", party: "Erica Linett & John Somerville"},
+            {firstName: "John", lastName: "Somerville", party: "Erica Linett & John Somerville"},
+            {firstName: "Eric", lastName: "Walls", party: "Eric Walls"},
+            {firstName: "Arielle", lastName: "Stratton", party: "Arielle & Austin Stratton"},
+            {firstName: "Austin", lastName: "Stratton", party: "Arielle & Austin Stratton"},
+            {firstName: "Shana", lastName: "Blackman", party: "Shana Blackman"},
+            {firstName: "Lisa", lastName: "Oleinick", party: "Lisa & Lee Oleinick"},
+            {firstName: "Lee", lastName: "Oleinick", party: "Lisa & Lee Oleinick"},
+            {firstName: "Bob", lastName: "Van De Mortel", party: "Bob Van De Mortel"},
+            {firstName: "Erez", lastName: "Berkowitz", party: "Erez Berkowitz, Matan Lilling, Inbal Lilling & Ori Lilling"},
+            {firstName: "Inbal", lastName: "Lilling", party: "Erez Berkowitz, Matan Lilling, Inbal Lilling & Ori Lilling"},
+            {firstName: "Ori", lastName: "Lilling", party: "Erez Berkowitz, Matan Lilling, Inbal Lilling & Ori Lilling"},
+            {firstName: "Scott", lastName: "Slutsky", party: "Scott Slutsky & Sam Kevy"},
+            {firstName: "Sam", lastName: "Kevy", party: "Scott Slutsky & Sam Kevy"},
+            {firstName: "Ellen", lastName: "Mihok", party: "Ellen Mihok"},
+            {firstName: "Sarah", lastName: "Park", party: "Sarah Park & Nathaniel Endicott"},
+            {firstName: "Nathaniel", lastName: "Endicott", party: "Sarah Park & Nathaniel Endicott"},
+            {firstName: "Anna", lastName: "Southworth", party: "Anna Southworth & Kyle Jackson"},
+            {firstName: "Kyle", lastName: "Jackson", party: "Anna Southworth & Kyle Jackson"},
+            {firstName: "Jeanne", lastName: "Weaver", party: "Jeanne Weaver & Steven Klein"},
+            {firstName: "Steven", lastName: "Klein", party: "Jeanne Weaver & Steven Klein"},
+            {firstName: "Sok", lastName: "Pantelides", party: "Sok & Mimi Pantelides"},
+            {firstName: "Mimi", lastName: "Pantelides", party: "Sok & Mimi Pantelides"},
+            {firstName: "Robin", lastName: "Dropkin", party: "Robin & David Dropkin"},
+            {firstName: "David", lastName: "Dropkin", party: "Robin & David Dropkin"},
+            {firstName: "Sara", lastName: "Benson", party: "Sara Benson & Ryne Duffy"},
+            {firstName: "Ryne", lastName: "Duffy", party: "Sara Benson & Ryne Duffy"},
+            {firstName: "Debbie", lastName: "Phillips", party: "Debbie & Don Phillips"},
+            {firstName: "Don", lastName: "Phillips", party: "Debbie & Don Phillips"},
+            {firstName: "Andi", lastName: "Blain", party: "Andi & Harv Blain"},
+            {firstName: "Harv", lastName: "Blain", party: "Andi & Harv Blain"},
+            {firstName: "Tommy", lastName: "Kim", party: "Tommy Kim & Tamana Tiku"},
+            {firstName: "Tamana", lastName: "Tiku", party: "Tommy Kim & Tamana Tiku"},
+            {firstName: "Brady", lastName: "Smithsund", party: "Brady Smithsund & Marie Blasi"},
+            {firstName: "Marie", lastName: "Blasi", party: "Brady Smithsund & Marie Blasi"},
+            {firstName: "Matthew", lastName: "Servedio", party: "Matthew Servedio"},
+            {firstName: "Chrissy", lastName: "Pastoria", party: "Chrissy Pastoria & Zach Berquist"},
+            {firstName: "Zach", lastName: "Berquist", party: "Chrissy Pastoria & Zach Berquist"},
+            {firstName: "Caroline", lastName: "Carey", party: "Caroline Carey & Charles Kuchenbrod"},
+            {firstName: "Charles", lastName: "Kuchenbrod", party: "Caroline Carey & Charles Kuchenbrod"},
+            {firstName: "Jason", lastName: "Moore", party: "Jason Moore"},
+            {firstName: "Tirzah", lastName: "Rao", party: "Tirzah Rao"}
+        ];
+
+        const mealOptions = [
+            "Za'atar chicken thighs with fingerlings potatoes, roasted brussels sprouts, & harissa glaze (GF)",
+            "MD rockfish with caramelized onions, grilled corn, roasted peppers, grits, & parsley pesto (GF)",
+            "Gnocchi with brussels sprouts and smoky tomato sauce (V)"
+        ];
+
+        // Build party data from guest list
+        function buildPartyData() {
+            partyData = {};
+            
+            weddingGuests.forEach(guest => {
+                if (!partyData[guest.party]) {
+                    partyData[guest.party] = [];
+                }
+                partyData[guest.party].push(`${guest.firstName} ${guest.lastName}`);
+            });
+        }
+
+        function populatePartyDropdown() {
+            // Store all parties for searching
+            window.allParties = Object.keys(partyData).sort().map(party => {
+                const guestCount = partyData[party].length;
+                return {
+                    name: party,
+                    display: `${party} (${guestCount} guest${guestCount > 1 ? 's' : ''})`
+                };
+            });
+        }
+
+        // Searchable dropdown functionality
+        const partySearch = document.getElementById('partySearch');
+        const partyOptions = document.getElementById('partyOptions');
+        const selectedPartyInput = document.getElementById('selectedParty');
+
+        partySearch.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            if (searchTerm.length === 0) {
+                partyOptions.style.display = 'none';
+                return;
+            }
+
+            // Wildcard search - look for matches in party names AND guest names
+            const filteredParties = window.allParties.filter(party => {
+                // Check if party name contains the search term
+                if (party.display.toLowerCase().includes(searchTerm)) {
+                    return true;
+                }
+                
+                // Check if any guest in this party matches the search term
+                const guests = partyData[party.name];
+                return guests.some(guest => 
+                    guest.toLowerCase().includes(searchTerm)
+                );
+            });
+
+            if (filteredParties.length === 0) {
+                partyOptions.innerHTML = '<div class="dropdown-option">No parties found</div>';
+            } else {
+                partyOptions.innerHTML = filteredParties.map(party => 
+                    `<div class="dropdown-option" data-value="${party.name}">${party.display}</div>`
+                ).join('');
+            }
+
+            partyOptions.style.display = 'block';
+        });
+
+        partySearch.addEventListener('focus', function() {
+            if (this.value.length > 0) {
+                partyOptions.style.display = 'block';
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.searchable-dropdown')) {
+                partyOptions.style.display = 'none';
+            }
+        });
+
+        partyOptions.addEventListener('click', function(e) {
+            if (e.target.classList.contains('dropdown-option')) {
+                const selectedValue = e.target.getAttribute('data-value');
+                if (selectedValue && selectedValue !== 'No parties found') {
+                    partySearch.value = e.target.textContent;
+                    selectedPartyInput.value = selectedValue;
+                    partyOptions.style.display = 'none';
+                    
+                    // Trigger party member display
+                    showPartyMembers(selectedValue);
+                }
+            }
+        });
+
+        function showPartyMembers(selectedParty) {
+            const partyMembersDiv = document.getElementById('partyMembers');
+            const membersList = document.getElementById('membersList');
+            const specialRequestsSection = document.getElementById('specialRequestsSection');
+            
+            if (selectedParty && partyData[selectedParty]) {
+                membersList.innerHTML = '';
+                
+                partyData[selectedParty].forEach((member, index) => {
+                    const memberDiv = document.createElement('div');
+                    memberDiv.className = 'member-selection';
+                    
+                    let optionsHTML = '';
+                    mealOptions.forEach(meal => {
+                        const mealId = `meal_${index}_${meal.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                        optionsHTML += `
+                            <div class="meal-option">
+                                <input type="radio" id="${mealId}" 
+                                       name="meal_${index}" value="${meal}" required>
+                                <label for="${mealId}">${meal}</label>
+                            </div>
+                        `;
+                    });
+                    
+                    memberDiv.innerHTML = `
+                        <div class="member-name">${member}</div>
+                        <div class="meal-options">
+                            ${optionsHTML}
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <label for="dietary_${index}" style="font-size: 0.9em; color: #666; font-weight: normal;">Dietary restrictions or allergies:</label>
+                            <input type="text" id="dietary_${index}" name="dietary_${index}" 
+                                   placeholder="Optional - any dietary restrictions or allergies..." 
+                                   style="margin-top: 5px; padding: 8px; font-size: 0.9em;">
+                        </div>
+                    `;
+                    
+                    membersList.appendChild(memberDiv);
+                });
+                
+                partyMembersDiv.classList.remove('hidden');
+                specialRequestsSection.classList.remove('hidden');
+            } else {
+                partyMembersDiv.classList.add('hidden');
+                specialRequestsSection.classList.add('hidden');
+            }
+        }
+
+        document.getElementById('mealForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const partyName = document.getElementById('selectedParty').value;
+            const specialRequests = document.getElementById('specialRequests').value;
+            
+            if (!partyName) {
+                alert('Please select your party from the dropdown.');
+                return;
+            }
+            
+            const response = {
+                partyName: partyName,
+                guests: [],
+                specialRequests: specialRequests,
+                timestamp: new Date().toISOString(),
+                submittedAt: new Date().toLocaleString()
+            };
+            
+            partyData[partyName].forEach((member, index) => {
+                const selectedMeal = document.querySelector(`input[name="meal_${index}"]:checked`);
+                const dietaryRestrictions = document.querySelector(`input[name="dietary_${index}"]`).value;
+                
+                if (selectedMeal) {
+                    response.guests.push({
+                        name: member,
+                        meal: selectedMeal.value,
+                        dietary: dietaryRestrictions || 'None'
+                    });
+                }
+            });
+            
+            // Send data to Web3Forms
+            const success = await sendToFormService(response);
+            
+            // Store response locally as backup
+            allResponses.push(response);
+            localStorage.setItem('weddingMealResponses', JSON.stringify(allResponses));
+            
+            // Show success message
+            document.getElementById('mealForm').classList.add('hidden');
+            document.getElementById('successMessage').classList.remove('hidden');
+            
+            if (success) {
+                console.log('Meal selection submitted successfully to Web3Forms:', response);
+            } else {
+                console.log('Meal selection saved locally (Web3Forms failed):', response);
+            }
+        });
+
+        // Send responses to Web3Forms
+        async function sendToFormService(response) {
+            const formData = new FormData();
+            
+            // Web3Forms required field
+            formData.append('access_key', 'ba496ffb-1d49-4639-8313-9cb8ec9bde4d');
+            
+            // Basic form info
+            formData.append('subject', `Wedding Meal Selection - ${response.partyName}`);
+            formData.append('party_name', response.partyName);
+            formData.append('submission_time', response.submittedAt);
+            formData.append('special_requests', response.specialRequests || 'None');
+            formData.append('total_guests', response.guests.length);
+            
+            // Create a formatted message with all guest details
+            let guestDetails = '';
+            response.guests.forEach((guest, index) => {
+                guestDetails += `Guest ${index + 1}: ${guest.name}\n`;
+                guestDetails += `  Meal: ${guest.meal}\n`;
+                guestDetails += `  Dietary: ${guest.dietary}\n\n`;
+            });
+            formData.append('guest_details', guestDetails);
+            
+            // Add individual guest fields for better organization
+            response.guests.forEach((guest, index) => {
+                formData.append(`guest_${index + 1}_name`, guest.name);
+                formData.append(`guest_${index + 1}_meal`, guest.meal);
+                formData.append(`guest_${index + 1}_dietary`, guest.dietary);
+            });
+            
+            try {
+                const response = await fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    console.log('Form submitted successfully to Web3Forms!');
+                    return true;
+                } else {
+                    console.error('Web3Forms submission failed:', result);
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error submitting to Web3Forms:', error);
+                return false;
+            }
+        }
+
+        // Admin functions
+        document.getElementById('showResponsesBtn').addEventListener('click', function() {
+            displayAllResponses();
+        });
+
+        document.getElementById('downloadAllBtn').addEventListener('click', function() {
+            downloadAllResponses();
+        });
+
+        function displayAllResponses() {
+            const responsesList = document.getElementById('responsesList');
+            responsesList.innerHTML = '';
+            
+            if (allResponses.length === 0) {
+                responsesList.innerHTML = '<p>No responses yet.</p>';
+            } else {
+                let html = '<h4>All Meal Selections:</h4>';
+                
+                allResponses.forEach((response, index) => {
+                    html += `
+                        <div style="border: 1px solid #ddd; margin: 10px 0; padding: 15px; border-radius: 5px;">
+                            <h5>${response.partyName} (Submitted: ${response.submittedAt})</h5>
+                    `;
+                    
+                    response.guests.forEach(guest => {
+                        html += `
+                            <div style="margin: 5px 0; padding: 8px; background: #f9f9f9; border-radius: 3px;">
+                                <strong>${guest.name}</strong><br>
+                                <em>Meal:</em> ${guest.meal}<br>
+                                <em>Dietary:</em> ${guest.dietary}
+                            </div>
+                        `;
+                    });
+                    
+                    if (response.specialRequests) {
+                        html += `<p><em>Additional Notes:</em> ${response.specialRequests}</p>`;
+                    }
+                    
+                    html += '</div>';
+                });
+                
+                responsesList.innerHTML = html;
+            }
+            
+            responsesList.classList.remove('hidden');
+        }
+
+        function downloadAllResponses() {
+            if (allResponses.length === 0) {
+                alert('No responses to download yet.');
+                return;
+            }
+            
+            const csvContent = generateCSV();
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'all_wedding_meal_selections.csv');
+            link.click();
+        }
+
+        function generateCSV() {
+            let csv = 'Party Name,Guest Name,Meal Choice,Dietary Restrictions,Additional Notes,Submitted At\n';
+            
+            allResponses.forEach(response => {
+                response.guests.forEach(guest => {
+                    csv += `"${response.partyName}","${guest.name}","${guest.meal}","${guest.dietary}","${response.specialRequests}","${response.timestamp}"\n`;
+                });
+            });
+            
+            return csv;
+        }
+
+        // Initialize the form with your wedding data
+        buildPartyData();
+        populatePartyDropdown();
+        
+        // Load existing responses from localStorage
+        const savedResponses = localStorage.getItem('weddingMealResponses');
+        if (savedResponses) {
+            allResponses = JSON.parse(savedResponses);
+            if (allResponses.length > 0) {
+                document.getElementById('adminSection').classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
