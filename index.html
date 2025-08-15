@@ -692,29 +692,31 @@
                 console.error('Error submitting to Web3Forms:', error);
             }
             
-            // Send to Google Sheets
+            // Send to Google Sheets using form submission (bypasses CORS)
             try {
-                // Replace this URL with your actual Google Apps Script URL
-                const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbxUF2UbqPrCVyV33cYfq9Lo0yNtnJR9ayHSOzyHA5mROWZ9fVaw-3scAHSby5NbE8Pf/exec';
+                const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbzxm6W8f7al1pOa6235q4LFD8-GPhnnEbO2VLEMLzVGIBWMw-pHsWBaRv16FrW1esSK/exec';
                 
-                if (googleScriptUrl !== 'YOUR_GOOGLE_SCRIPT_URL') {
-                    const googleResponse = await fetch(googleScriptUrl, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(response)
-                    });
-                    
-                    if (googleResponse.ok) {
-                        console.log('Form submitted successfully to Google Sheets!');
-                        googleSheetsSuccess = true;
-                    } else {
-                        console.error('Google Sheets submission failed:', googleResponse.statusText);
-                    }
-                } else {
-                    console.log('Google Sheets URL not configured yet');
-                }
+                // Create a hidden form to submit to Google Sheets
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = googleScriptUrl;
+                form.target = '_blank';
+                form.style.display = 'none';
+                
+                // Add the JSON data as form data
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'data';
+                input.value = JSON.stringify(response);
+                form.appendChild(input);
+                
+                document.body.appendChild(form);
+                form.submit();
+                document.body.removeChild(form);
+                
+                console.log('Form submitted to Google Sheets via form submission!');
+                googleSheetsSuccess = true;
+                
             } catch (error) {
                 console.error('Error submitting to Google Sheets:', error);
             }
