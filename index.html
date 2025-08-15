@@ -640,55 +640,87 @@
             }
         });
 
-        // Send responses to Web3Forms
+        // Send responses to both Web3Forms and Google Sheets
         async function sendToFormService(response) {
-            const formData = new FormData();
+            let web3FormsSuccess = false;
+            let googleSheetsSuccess = false;
             
-            // Web3Forms required field
-            formData.append('access_key', 'ba496ffb-1d49-4639-8313-9cb8ec9bde4d');
-            
-            // Basic form info
-            formData.append('subject', `Wedding Meal Selection - ${response.partyName}`);
-            formData.append('party_name', response.partyName);
-            formData.append('submission_time', response.submittedAt);
-            formData.append('special_requests', response.specialRequests || 'None');
-            formData.append('total_guests', response.guests.length);
-            
-            // Create a formatted message with all guest details
-            let guestDetails = '';
-            response.guests.forEach((guest, index) => {
-                guestDetails += `Guest ${index + 1}: ${guest.name}\n`;
-                guestDetails += `  Meal: ${guest.meal}\n`;
-                guestDetails += `  Dietary: ${guest.dietary}\n\n`;
-            });
-            formData.append('guest_details', guestDetails);
-            
-            // Add individual guest fields for better organization
-            response.guests.forEach((guest, index) => {
-                formData.append(`guest_${index + 1}_name`, guest.name);
-                formData.append(`guest_${index + 1}_meal`, guest.meal);
-                formData.append(`guest_${index + 1}_dietary`, guest.dietary);
-            });
-            
+            // Send to Web3Forms
             try {
-                const response = await fetch('https://api.web3forms.com/submit', {
+                const formData = new FormData();
+                
+                // Web3Forms required field
+                formData.append('access_key', 'ba496ffb-1d49-4639-8313-9cb8ec9bde4d');
+                
+                // Basic form info
+                formData.append('subject', `Wedding Meal Selection - ${response.partyName}`);
+                formData.append('party_name', response.partyName);
+                formData.append('submission_time', response.submittedAt);
+                formData.append('special_requests', response.specialRequests || 'None');
+                formData.append('total_guests', response.guests.length);
+                
+                // Create a formatted message with all guest details
+                let guestDetails = '';
+                response.guests.forEach((guest, index) => {
+                    guestDetails += `Guest ${index + 1}: ${guest.name}\n`;
+                    guestDetails += `  Meal: ${guest.meal}\n`;
+                    guestDetails += `  Dietary: ${guest.dietary}\n\n`;
+                });
+                formData.append('guest_details', guestDetails);
+                
+                // Add individual guest fields for better organization
+                response.guests.forEach((guest, index) => {
+                    formData.append(`guest_${index + 1}_name`, guest.name);
+                    formData.append(`guest_${index + 1}_meal`, guest.meal);
+                    formData.append(`guest_${index + 1}_dietary`, guest.dietary);
+                });
+                
+                const web3Response = await fetch('https://api.web3forms.com/submit', {
                     method: 'POST',
                     body: formData
                 });
                 
-                const result = await response.json();
+                const web3Result = await web3Response.json();
                 
-                if (result.success) {
+                if (web3Result.success) {
                     console.log('Form submitted successfully to Web3Forms!');
-                    return true;
+                    web3FormsSuccess = true;
                 } else {
-                    console.error('Web3Forms submission failed:', result);
-                    return false;
+                    console.error('Web3Forms submission failed:', web3Result);
                 }
             } catch (error) {
                 console.error('Error submitting to Web3Forms:', error);
-                return false;
             }
+            
+            // Send to Google Sheets
+            try {
+                // Replace this URL with your actual Google Apps Script URL
+                const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbyiRgq5KIzYQJXE3c5Sgkh1MfI8SlLZ26AJGz_8oyfAViJ0oLT7GsdsBVDJyc6W9oLG/exec';
+                
+                if (googleScriptUrl !== 'YOUR_GOOGLE_SCRIPT_URL') {
+                    const googleResponse = await fetch(googleScriptUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(response)
+                    });
+                    
+                    if (googleResponse.ok) {
+                        console.log('Form submitted successfully to Google Sheets!');
+                        googleSheetsSuccess = true;
+                    } else {
+                        console.error('Google Sheets submission failed:', googleResponse.statusText);
+                    }
+                } else {
+                    console.log('Google Sheets URL not configured yet');
+                }
+            } catch (error) {
+                console.error('Error submitting to Google Sheets:', error);
+            }
+            
+            // Return true if at least one service succeeded
+            return web3FormsSuccess || googleSheetsSuccess;
         }
 
         // Admin password protection
@@ -717,7 +749,7 @@
                 // Show error message
                 const passwordInput = document.getElementById('adminPassword');
                 passwordInput.style.borderColor = '#dc3545';
-                passwordInput.placeholder = 'Incorrect password - try again';
+                passwordInput.placeholder = 'Access denied';
                 passwordInput.value = '';
                 
                 setTimeout(() => {
