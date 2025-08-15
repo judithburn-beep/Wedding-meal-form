@@ -277,16 +277,37 @@
             <p>Your meal selections have been recorded. We can't wait to celebrate with you!</p>
         </div>
 
-        <!-- Admin Section (Hidden by default) -->
+        <!-- Admin Section (Password Protected) -->
         <div id="adminSection" class="hidden" style="margin-top: 40px; padding: 20px; background: #f0f8ff; border-radius: 10px;">
             <h3>📊 Admin: View All Responses</h3>
-            <p><em>Only you (the couple) should see this section</em></p>
-            <button id="showResponsesBtn" class="submit-btn" style="width: auto; display: inline-block; margin: 10px 0;">
-                View All Meal Selections
-            </button>
-            <button id="downloadAllBtn" class="submit-btn" style="width: auto; display: inline-block; margin: 10px;">
-                Download All as CSV
-            </button>
+            <p><em>Password required to access admin features</em></p>
+            
+            <div id="passwordPrompt">
+                <div style="margin: 15px 0;">
+                    <label for="adminPassword" style="display: block; margin-bottom: 8px; font-weight: 600;">Admin Password:</label>
+                    <input type="password" id="adminPassword" placeholder="Enter admin password..." 
+                           style="padding: 10px; border: 2px solid #e8f4f8; border-radius: 8px; width: 200px; margin-right: 10px;">
+                    <button id="unlockAdminBtn" class="submit-btn" style="width: auto; display: inline-block; padding: 10px 20px;">
+                        Unlock Admin
+                    </button>
+                </div>
+                <p style="font-size: 0.9em; color: #666; margin-top: 5px;">
+                    <em>Hint: Your wedding date in MMDDYYYY format (e.g., 06152025)</em>
+                </p>
+            </div>
+            
+            <div id="adminControls" class="hidden">
+                <button id="showResponsesBtn" class="submit-btn" style="width: auto; display: inline-block; margin: 10px 0;">
+                    View All Meal Selections
+                </button>
+                <button id="downloadAllBtn" class="submit-btn" style="width: auto; display: inline-block; margin: 10px;">
+                    Download All as CSV
+                </button>
+                <button id="lockAdminBtn" class="submit-btn" style="width: auto; display: inline-block; margin: 10px; background: #dc3545;">
+                    Lock Admin
+                </button>
+            </div>
+            
             <div id="responsesList" class="hidden" style="margin-top: 20px; max-height: 400px; overflow-y: auto; background: white; padding: 15px; border-radius: 5px;"></div>
         </div>
     </div>
@@ -673,13 +694,69 @@
             }
         }
 
-        // Admin functions
+        // Admin password protection
+        const adminPassword = "10122025"; // Change this to your wedding date in MMDDYYYY format
+        let adminUnlocked = false;
+
+        document.getElementById('unlockAdminBtn').addEventListener('click', function() {
+            const enteredPassword = document.getElementById('adminPassword').value;
+            
+            if (enteredPassword === adminPassword) {
+                adminUnlocked = true;
+                document.getElementById('passwordPrompt').classList.add('hidden');
+                document.getElementById('adminControls').classList.remove('hidden');
+                
+                // Show success message briefly
+                const unlockBtn = document.getElementById('unlockAdminBtn');
+                const originalText = unlockBtn.textContent;
+                unlockBtn.textContent = '✅ Unlocked!';
+                unlockBtn.style.background = '#28a745';
+                
+                setTimeout(() => {
+                    unlockBtn.textContent = originalText;
+                    unlockBtn.style.background = '';
+                }, 1500);
+            } else {
+                // Show error message
+                const passwordInput = document.getElementById('adminPassword');
+                passwordInput.style.borderColor = '#dc3545';
+                passwordInput.placeholder = 'Incorrect password - try again';
+                passwordInput.value = '';
+                
+                setTimeout(() => {
+                    passwordInput.style.borderColor = '#e8f4f8';
+                    passwordInput.placeholder = 'Enter admin password...';
+                }, 2000);
+            }
+        });
+
+        // Allow Enter key to submit password
+        document.getElementById('adminPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('unlockAdminBtn').click();
+            }
+        });
+
+        // Lock admin button
+        document.getElementById('lockAdminBtn').addEventListener('click', function() {
+            adminUnlocked = false;
+            document.getElementById('passwordPrompt').classList.remove('hidden');
+            document.getElementById('adminControls').classList.add('hidden');
+            document.getElementById('responsesList').classList.add('hidden');
+            document.getElementById('adminPassword').value = '';
+        });
+
+        // Admin functions (only work when unlocked)
         document.getElementById('showResponsesBtn').addEventListener('click', function() {
-            displayAllResponses();
+            if (adminUnlocked) {
+                displayAllResponses();
+            }
         });
 
         document.getElementById('downloadAllBtn').addEventListener('click', function() {
-            downloadAllResponses();
+            if (adminUnlocked) {
+                downloadAllResponses();
+            }
         });
 
         function displayAllResponses() {
@@ -751,7 +828,7 @@
         buildPartyData();
         populatePartyDropdown();
         
-        // Load existing responses from localStorage
+        // Load existing responses from localStorage and show admin section if responses exist
         const savedResponses = localStorage.getItem('weddingMealResponses');
         if (savedResponses) {
             allResponses = JSON.parse(savedResponses);
