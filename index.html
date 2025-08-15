@@ -696,6 +696,8 @@
             try {
                 const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbzxm6W8f7al1pOa6235q4LFD8-GPhnnEbO2VLEMLzVGIBWMw-pHsWBaRv16FrW1esSK/exec';
                 
+                console.log('Attempting to submit to Google Sheets URL:', googleScriptUrl);
+                
                 // Create a hidden form to submit to Google Sheets
                 const form = document.createElement('form');
                 form.method = 'POST';
